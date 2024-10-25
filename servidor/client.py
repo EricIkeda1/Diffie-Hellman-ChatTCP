@@ -16,13 +16,13 @@ def compute_shared_key(private_key, public_key_received):
     shared_key = (public_key_received ** private_key) % PRIME
     return shared_key
 
-# Função de cifra de César
+# Função de cifra de César usando ASCII
 def caesar_cipher(text, shift):
-    return ''.join(chr((ord(char) + shift - 65) % 26 + 65) for char in text.upper() if char.isalpha())
+    return ''.join(chr((ord(char) + shift) % 128) for char in text)
 
-# Função de decifra da cifra de César
+# Função de decifra da cifra de César usando ASCII
 def caesar_decipher(text, shift):
-    return ''.join(chr((ord(char) - shift - 65) % 26 + 65) for char in text.upper() if char.isalpha())
+    return ''.join(chr((ord(char) - shift) % 128) for char in text)
 
 def client_program():
     client_socket = socket.socket()
