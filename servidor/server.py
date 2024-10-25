@@ -1,65 +1,64 @@
 import socket
 import random
-import hashlib
 
-# Parâmetros Diffie-Hellman
-g = 5  # Gerador
-p = 23 # Número primo
+# Parâmetros do algoritmo Diffie-Hellman
+PRIME = 23  # Número primo
+BASE = 5    # Base
+
+# Função para gerar a chave privada e calcular a chave pública
+def generate_keys():
+    private_key = random.randint(1, PRIME - 1)
+    public_key = (BASE ** private_key) % PRIME
+    return private_key, public_key
+
+# Função para calcular a chave compartilhada
+def compute_shared_key(private_key, public_key_received):
+    shared_key = (public_key_received ** private_key) % PRIME
+    return shared_key
 
 # Função de cifra de César
-def cifra_cesar(mensagem, deslocamento):
-    return ''.join(chr((ord(char) + deslocamento - 32) % 95 + 32) for char in mensagem)
+def caesar_cipher(text, shift):
+    return ''.join(chr((ord(char) + shift - 65) % 26 + 65) for char in text.upper() if char.isalpha())
 
-# Função de decifra de César
-def decifra_cesar(mensagem, deslocamento):
-    return ''.join(chr((ord(char) - deslocamento - 32) % 95 + 32) for char in mensagem)
+# Função de decifra da cifra de César
+def caesar_decipher(text, shift):
+    return ''.join(chr((ord(char) - shift - 65) % 26 + 65) for char in text.upper() if char.isalpha())
 
-# Configuração do servidor TCP
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost', 5000))
-server.listen(1)
-print("Servidor aguardando conexão...")
-
-client_socket, addr = server.accept()
-print(f"Conexão estabelecida com {addr}")
-
-while True:
-    # Geração da chave privada e pública do servidor
-    server_private = random.randint(1, p-1)
-    server_public = (g ** server_private) % p
-    print(f"Chave privada do servidor: {server_private}")
-    print(f"Chave pública do servidor: {server_public}")
-
-    # Envia a chave pública do servidor para o cliente
-    client_socket.send(str(server_public).encode())
-
-    # Recebe a chave pública do cliente
-    client_public = int(client_socket.recv(1024).decode())
-    print(f"Chave pública do cliente recebida: {client_public}")
-
-    # Cálculo da chave compartilhada
-    shared_key = (client_public ** server_private) % p
-    print(f"Chave compartilhada calculada: {shared_key}")
-
-    # Define o deslocamento da cifra de César com base na chave compartilhada
-    deslocamento = shared_key
-
-    # Recebe e decifra a mensagem do cliente
-    mensagem_cifrada = client_socket.recv(1024).decode()
-    print(f"Mensagem cifrada recebida do cliente: {mensagem_cifrada}")
-    mensagem_decifrada = decifra_cesar(mensagem_cifrada, deslocamento)
-    print(f"Mensagem decifrada: {mensagem_decifrada}")
-
-    # Envia uma resposta cifrada para o cliente
-    resposta = input("Servidor: ")
-    resposta_cifrada = cifra_cesar(resposta, deslocamento)
-    client_socket.send(resposta_cifrada.encode())
-    print(f"Mensagem cifrada enviada para o cliente: {resposta_cifrada}")
-
-    if resposta.lower() == 'exit':
-        print("Encerrando a conexão.")
-        break
-
-client_socket.close()
-server.close()
+def server_program():
+    server_socket = socket.socket()
+    server_socket.bind(('localhost', 12345))
+    server_socket.listen(1)
+    print("Servidor esperando conexão do cliente...")
     
+    conn, address = server_socket.accept()
+    print(f"Conectado a {address}")
+    
+    private_key, public_key = generate_keys()
+    print(f"Servidor - Chave Privada: {private_key}, Chave Pública: {public_key}")
+    
+    conn.send(str(public_key).encode())
+    client_public_key = int(conn.recv(1024).decode())
+    shared_key = compute_shared_key(private_key, client_public_key)
+    print(f"Servidor - Chave Compartilhada: {shared_key}")
+    
+    while True:
+        # Receber mensagem cifrada
+        encrypted_message = conn.recv(1024).decode()
+        if not encrypted_message:
+            break
+        print(f"Mensagem cifrada recebida: {encrypted_message}")
+        
+        # Decifrar mensagem
+        decrypted_message = caesar_decipher(encrypted_message, shared_key)
+        print(f"Mensagem decifrada: {decrypted_message}")
+        
+        # Gerar nova chave compartilhada para o próximo ciclo
+        private_key, public_key = generate_keys()
+        conn.send(str(public_key).encode())
+        client_public_key = int(conn.recv(1024).decode())
+        shared_key = compute_shared_key(private_key, client_public_key)
+
+    conn.close()
+
+if __name__ == "__main__":
+    server_program()
