@@ -33,11 +33,13 @@ def client_program():
     client_socket = socket.socket()
     client_socket.connect(('localhost', 12345))
 
+    # Gera a chave privada e pública apenas uma vez
     private_key, public_key = generate_keys()
     print(f"Cliente - Chave Privada: {private_key}, Chave Pública: {public_key}")
 
-    server_public_key = int(client_socket.recv(1024).decode())
+    # Troca de chaves públicas com o servidor
     client_socket.send(str(public_key).encode())
+    server_public_key = int(client_socket.recv(1024).decode())
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
 
@@ -60,12 +62,6 @@ def client_program():
             decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
             print(f"Mensagem decifrada enviada: {decrypted_message}")
             client_socket.send(decrypted_message.encode())
-
-        private_key, public_key = generate_keys()
-        client_socket.send(str(public_key).encode())
-        server_public_key = int(client_socket.recv(1024).decode())
-        shared_key = compute_shared_key(private_key, server_public_key)
-        print(f"Nova Chave Compartilhada: {shared_key}")
 
     client_socket.close()
 

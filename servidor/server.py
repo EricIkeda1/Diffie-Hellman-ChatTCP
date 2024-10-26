@@ -37,9 +37,11 @@ def server_program():
     conn, address = server_socket.accept()
     print(f"Conectado a {address}")
 
+    # Gera a chave privada e pública apenas uma vez
     private_key, public_key = generate_keys()
     print(f"Servidor - Chave Privada: {private_key}, Chave Pública: {public_key}")
 
+    # Troca de chaves públicas com o cliente
     conn.send(str(public_key).encode())
     client_public_key = int(conn.recv(1024).decode())
     shared_key = compute_shared_key(private_key, client_public_key)
@@ -53,12 +55,6 @@ def server_program():
 
         decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
         print(f"Mensagem decifrada: {decrypted_message}")
-
-        private_key, public_key = generate_keys()
-        conn.send(str(public_key).encode())
-        client_public_key = int(conn.recv(1024).decode())
-        shared_key = compute_shared_key(private_key, client_public_key)
-        print(f"Nova Chave Compartilhada: {shared_key}")
 
     conn.close()
 
