@@ -44,11 +44,14 @@ def handle_client(conn, address):
         encrypted_message = conn.recv(1024).decode()
         if not encrypted_message:
             break
-        print(f"Mensagem recebida de {address}: {encrypted_message}")
+        # Exibir a mensagem criptografada recebida
+        print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
 
         # Decifrar a mensagem usando a chave compartilhada
         decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-        print(f"Mensagem decifrada de {address}: {decrypted_message}")
+
+        # Se você não quiser exibir a mensagem decifrada, não imprima aqui
+        # print(f"Mensagem decifrada de {address}: {decrypted_message}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")
