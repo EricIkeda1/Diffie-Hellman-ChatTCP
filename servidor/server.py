@@ -4,11 +4,10 @@ import threading
 
 # Parâmetros do algoritmo Diffie-Hellman
 PRIME = 23  # Número primo
-BASE = 5    # Base
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    public_key = (BASE ** private_key) % PRIME
+    public_key = (5 ** private_key) % PRIME  # Usando 5 diretamente aqui
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
