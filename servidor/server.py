@@ -31,13 +31,18 @@ def cifra_cesar(texto, chave, modo='criptografar'):
 def handle_client(conn, address):
     print(f"Conectado a {address}")
 
-    # Gera a chave privada e pública apenas uma vez
+    # Gera a chave privada e pública
     private_key, public_key = generate_keys()
     print(f"Servidor - Chave Pública: {public_key}")
 
     # Troca de chaves públicas com o cliente
     conn.send(str(public_key).encode())
     client_public_key = int(conn.recv(1024).decode())
+    
+    # Exibe a chave pública do cliente
+    print(f"Servidor - Chave Pública do Cliente ({address}): {client_public_key}")
+
+    # Computa a chave compartilhada
     shared_key = compute_shared_key(private_key, client_public_key)
 
     while True:
@@ -51,7 +56,7 @@ def handle_client(conn, address):
         decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
 
         # Se você não quiser exibir a mensagem decifrada, não imprima aqui
-        # print(f"Mensagem decifrada de {address}: {decrypted_message}")
+        print(f"Mensagem decifrada de {address}: {decrypted_message}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")

@@ -32,13 +32,18 @@ def client_program():
     client_socket = socket.socket()
     client_socket.connect(('localhost', 12345))
 
-    # Gera a chave privada e pública apenas uma vez
+    # Gera a chave privada e pública
     private_key, public_key = generate_keys()
     print(f"Cliente - Chave Privada: {private_key}, Chave Pública: {public_key}")
 
     # Troca de chaves públicas com o servidor
     client_socket.send(str(public_key).encode())
     server_public_key = int(client_socket.recv(1024).decode())
+    
+    # Exibe a chave pública do servidor recebida
+    print(f"Cliente - Chave Pública do Servidor: {server_public_key}")
+
+    # Computa a chave compartilhada
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
 
