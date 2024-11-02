@@ -2,8 +2,23 @@ import socket
 import random
 import threading
 
-# Parâmetros do algoritmo Diffie-Hellman
-PRIME = 23  # Número primo
+# Função para verificar se um número é primo
+def is_prime(num):
+    if num < 2:
+        return False
+    for i in range(2, int(num**0.5) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+# Função para gerar um número primo aleatório entre 0 e 999
+def generate_random_prime():
+    while True:
+        num = random.randint(0, 999)
+        if is_prime(num):
+            return num
+
+PRIME = generate_random_prime()  # Gera um número primo aleatório
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
