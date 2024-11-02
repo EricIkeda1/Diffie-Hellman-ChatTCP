@@ -1,7 +1,6 @@
 import socket
 import random
 
-# Função para verificar se um número é primo
 def is_prime(num):
     if num < 2:
         return False
@@ -10,25 +9,23 @@ def is_prime(num):
             return False
     return True
 
-# Função para gerar um número primo aleatório entre 0 e 999
 def generate_random_prime():
     while True:
         num = random.randint(0, 999)
         if is_prime(num):
             return num
 
-PRIME = generate_random_prime()  # Gera um número primo aleatório
+PRIME = generate_random_prime()
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    public_key = (5 ** private_key) % PRIME  # Usando 5 diretamente aqui
+    public_key = (5 ** private_key) % PRIME
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
     shared_key = (public_key_received ** private_key) % PRIME
     return shared_key
 
-# Função de cifra de César
 def cifra_cesar(texto, chave, modo='criptografar'):
     resultado = ""
     for char in texto:
@@ -47,18 +44,13 @@ def client_program():
     client_socket = socket.socket()
     client_socket.connect(('localhost', 12345))
 
-    # Gera a chave privada e pública
     private_key, public_key = generate_keys()
     print(f"Cliente - Chave Privada: {private_key}, Chave Pública: {public_key}")
 
-    # Troca de chaves públicas com o servidor
     client_socket.send(str(public_key).encode())
     server_public_key = int(client_socket.recv(1024).decode())
-    
-    # Exibe a chave pública do servidor recebida
     print(f"Cliente - Chave Pública: {server_public_key}")
 
-    # Computa a chave compartilhada
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
 
@@ -73,14 +65,19 @@ def client_program():
             print("Encerrando conexão.")
             break
 
+        # Sempre criptografa a mensagem a ser enviada, independentemente da opção escolhida
         if modo == '1':  # Criptografar e enviar
             encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
             print(f"Mensagem cifrada enviada: {encrypted_message}")
             client_socket.send(encrypted_message.encode())
-        elif modo == '2':  # Descriptografar a mensagem recebida
+        elif modo == '2':  # Descriptografar a mensagem antes de enviar
+            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
+            print(f"Mensagem cifrada enviada (descriptografada no cliente): {message}")
+            client_socket.send(encrypted_message.encode())
+
+            # Mostrar a versão descriptografada localmente
             decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
-            print(f"Mensagem decifrada enviada: {decrypted_message}")
-            client_socket.send(decrypted_message.encode())
+            print(f"Mensagem decifrada recebida: {decrypted_message}")
 
     client_socket.close()
 

@@ -2,7 +2,6 @@ import socket
 import random
 import threading
 
-# Função para verificar se um número é primo
 def is_prime(num):
     if num < 2:
         return False
@@ -11,18 +10,17 @@ def is_prime(num):
             return False
     return True
 
-# Função para gerar um número primo aleatório entre 0 e 999
 def generate_random_prime():
     while True:
         num = random.randint(0, 999)
         if is_prime(num):
             return num
 
-PRIME = generate_random_prime()  # Gera um número primo aleatório
+PRIME = generate_random_prime()
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    public_key = (5 ** private_key) % PRIME  # Usando 5 diretamente aqui
+    public_key = (5 ** private_key) % PRIME
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
@@ -46,32 +44,20 @@ def cifra_cesar(texto, chave, modo='criptografar'):
 def handle_client(conn, address):
     print(f"Conectado a {address}")
 
-    # Gera a chave privada e pública
     private_key, public_key = generate_keys()
     print(f"Servidor - Chave Pública: {public_key}")
 
-    # Troca de chaves públicas com o cliente
     conn.send(str(public_key).encode())
     client_public_key = int(conn.recv(1024).decode())
     
-    # Exibe a chave pública do cliente
-    print(f"Servidor - Chave Pública do Cliente ({address}): {client_public_key}")
-
-    # Computa a chave compartilhada
     shared_key = compute_shared_key(private_key, client_public_key)
 
     while True:
         encrypted_message = conn.recv(1024).decode()
         if not encrypted_message:
             break
-        # Exibir a mensagem criptografada recebida
+        # Exibir apenas a mensagem criptografada recebida
         print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
-
-        # Decifrar a mensagem usando a chave compartilhada
-        decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-
-        # Remova ou comente a linha abaixo para não exibir a mensagem decifrada
-        # print(f"Mensagem decifrada de {address}: {decrypted_message}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")
