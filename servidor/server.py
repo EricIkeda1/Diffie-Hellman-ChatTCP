@@ -55,8 +55,8 @@ def handle_client(conn, address):
         # Decifrar a mensagem usando a chave compartilhada
         decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
 
-        # Se você não quiser exibir a mensagem decifrada, não imprima aqui
-        print(f"Mensagem decifrada de {address}: {decrypted_message}")
+        # Remova ou comente a linha abaixo para não exibir a mensagem decifrada
+        # print(f"Mensagem decifrada de {address}: {decrypted_message}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")
