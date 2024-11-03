@@ -12,11 +12,11 @@ def is_prime(num):
 
 def generate_random_prime():
     while True:
-        num = random.randint(0, 999)
+        num = random.randint(2, 1000)
         if is_prime(num):
             return num
 
-PRIME = generate_random_prime()
+PRIME = generate_random_prime()  # Número primo aleatório gerado
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
@@ -45,7 +45,7 @@ def handle_client(conn, address):
     print(f"Conectado a {address}")
 
     private_key, public_key = generate_keys()
-    print(f"Servidor - Chave Pública: {public_key}")
+    print(f"Servidor - Chave Pública: {public_key}")  # Exibe a chave pública do servidor
 
     conn.send(str(public_key).encode())
     client_public_key = int(conn.recv(1024).decode())
@@ -56,7 +56,6 @@ def handle_client(conn, address):
         encrypted_message = conn.recv(1024).decode()
         if not encrypted_message:
             break
-        # Exibir apenas a mensagem criptografada recebida
         print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
 
     conn.close()

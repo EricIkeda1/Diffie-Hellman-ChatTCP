@@ -11,11 +11,33 @@ def is_prime(num):
 
 def generate_random_prime():
     while True:
-        num = random.randint(0, 999)
+        num = random.randint(2, 1000)
         if is_prime(num):
             return num
 
-PRIME = generate_random_prime()
+def factorize(n):
+    factors = []
+    d = 2
+    while d * d <= n:
+        while (n % d) == 0:
+            factors.append(d)
+            n //= d
+        d += 1
+    if n > 1:
+        factors.append(n)
+    return set(factors)
+
+def is_primitive_root(q, a):
+    phi_a = a - 1  # ϕ(a) para a primo é a-1
+    factors = factorize(phi_a)
+
+    for factor in factors:
+        k = phi_a // factor
+        if pow(q, k, a) == 1:
+            return False
+    return True
+
+PRIME = 353  # Definido como número primo para o exemplo
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
@@ -49,7 +71,7 @@ def client_program():
 
     client_socket.send(str(public_key).encode())
     server_public_key = int(client_socket.recv(1024).decode())
-    print(f"Cliente - Chave Pública: {server_public_key}")
+    print(f"Cliente - Chave Pública do Servidor: {server_public_key}")
 
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
@@ -65,7 +87,6 @@ def client_program():
             print("Encerrando conexão.")
             break
 
-        # Sempre criptografa a mensagem a ser enviada, independentemente da opção escolhida
         if modo == '1':  # Criptografar e enviar
             encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
             print(f"Mensagem cifrada enviada: {encrypted_message}")
