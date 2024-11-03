@@ -41,54 +41,31 @@ def cifra_cesar(texto, chave, modo='criptografar'):
             resultado += char
     return resultado
 
-clients = []
-
 def handle_client(conn, address):
     print(f"Conectado a {address}")
 
-    # Gera a chave privada e pública do servidor
     private_key, public_key = generate_keys()
-    
-    # Envia a chave pública do servidor para o cliente
-    conn.send(str(public_key).encode())
-    
-    # Recebe a chave pública do cliente
-    client_public_key = int(conn.recv(1024).decode())
-    print(f"Chave Pública do Cliente ({address}): {client_public_key}")
+    print(f"Servidor - Chave Pública: {public_key}")
 
-    # Calcula a chave compartilhada
+    conn.send(str(public_key).encode())
+    client_public_key = int(conn.recv(1024).decode())
+    
     shared_key = compute_shared_key(private_key, client_public_key)
 
-    # Adiciona o cliente à lista de conexões
-    clients.append(conn)
-
     while True:
-        try:
-            # Recebe a mensagem do cliente
-            encrypted_message = conn.recv(1024).decode()
-            if not encrypted_message:
-                break
-
-            # Exibe a mensagem criptografada recebida
-            print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
-
-            # Descriptografa a mensagem
-            decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-            print(f"Mensagem descriptografada: {decrypted_message}")
-
-            # Não envia a mensagem para outros clientes
-        except:
+        encrypted_message = conn.recv(1024).decode()
+        if not encrypted_message:
             break
+        # Exibir apenas a mensagem criptografada recebida
+        print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
 
-    # Fecha a conexão e remove o cliente da lista
     conn.close()
-    clients.remove(conn)
     print(f"Conexão com {address} encerrada.")
 
 def server_program():
     server_socket = socket.socket()
     server_socket.bind(('localhost', 12345))
-    server_socket.listen(5)  # Permite múltiplas conexões
+    server_socket.listen(2)  # Permite até 2 conexões de clientes
     print("Servidor esperando conexão de clientes...")
 
     while True:

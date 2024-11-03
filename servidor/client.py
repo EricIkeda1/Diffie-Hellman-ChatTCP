@@ -1,6 +1,5 @@
 import socket
 import random
-import threading
 
 def is_prime(num):
     if num < 2:
@@ -35,27 +34,13 @@ def cifra_cesar(texto, chave, modo='criptografar'):
             base = ord('A') if char.isupper() else ord('a')
             if modo == 'criptografar':
                 resultado += chr((ord(char) - base + deslocamento) % 26 + base)
-            else:  # modo == 'decifrar'
+            else:
                 resultado += chr((ord(char) - base - deslocamento) % 26 + base)
         else:
             resultado += char
     return resultado
 
-def receive_messages(client_socket):
-    while True:
-        try:
-            response = client_socket.recv(1024).decode()
-            if response:
-                decrypted_response = cifra_cesar(response, shared_key, modo='decifrar')
-                print(f"\nMensagem recebida do outro cliente (decifrada): {decrypted_response}")
-            else:
-                break
-        except:
-            print("Erro ao receber a mensagem.")
-            break
-
 def client_program():
-    global shared_key
     client_socket = socket.socket()
     client_socket.connect(('localhost', 12345))
 
@@ -64,38 +49,35 @@ def client_program():
 
     client_socket.send(str(public_key).encode())
     server_public_key = int(client_socket.recv(1024).decode())
-    print(f"Cliente - Chave Pública do Servidor: {server_public_key}")
+    print(f"Cliente - Chave Pública: {server_public_key}")
 
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
 
-    # Iniciar thread para receber mensagens
-    threading.Thread(target=receive_messages, args=(client_socket,), daemon=True).start()
-
     while True:
-        print("\nEscolha uma opção:")
-        print("1. Criptografar Mensagem")
-        print("2. Descriptografar Mensagem")
-        print("3. Sair")
+        modo = input("Digite 1 para criptografar ou 2 para descriptografar a mensagem: ")
+        if modo not in ['1', '2']:
+            print("Opção inválida! Tente novamente.")
+            continue
 
-        option = input("Digite o número da opção: ")
-        if option == '1':
-            message = input("Digite a mensagem para criptografar: ")
-            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
-            print(f"Mensagem cifrada: {encrypted_message}")
-            client_socket.send(encrypted_message.encode())
-
-        elif option == '2':
-            message = input("Digite a mensagem cifrada para descriptografar: ")
-            decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
-            print(f"Mensagem decifrada: {decrypted_message}")
-
-        elif option == '3':
+        message = input("Digite a mensagem para enviar: ")
+        if message.lower() == 'sair':
             print("Encerrando conexão.")
             break
 
-        else:
-            print("Opção inválida! Tente novamente.")
+        # Sempre criptografa a mensagem a ser enviada, independentemente da opção escolhida
+        if modo == '1':  # Criptografar e enviar
+            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
+            print(f"Mensagem cifrada enviada: {encrypted_message}")
+            client_socket.send(encrypted_message.encode())
+        elif modo == '2':  # Descriptografar a mensagem antes de enviar
+            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
+            print(f"Mensagem cifrada enviada (descriptografada no cliente): {message}")
+            client_socket.send(encrypted_message.encode())
+
+            # Mostrar a versão descriptografada localmente
+            decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
+            print(f"Mensagem decifrada recebida: {decrypted_message}")
 
     client_socket.close()
 
