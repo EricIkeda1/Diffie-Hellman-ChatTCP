@@ -77,16 +77,23 @@ def client_program():
     print(f"Cliente - Chave Compartilhada: {shared_key}")
 
     while True:
-        modo = input("Digite 1 para criptografar ou 2 para descriptografar a mensagem: ")
-        if modo not in ['1', '2']:
+        print("\nEscolha uma opção:")
+        print("1. Criptografar")
+        print("2. Descriptografar")
+        print("3. Sair")
+        
+        modo = input("Digite o número da opção desejada: ")
+        
+        if modo not in ['1', '2', '3']:
             print("Opção inválida! Tente novamente.")
             continue
-
-        message = input("Digite a mensagem para enviar: ")
-        if message.lower() == 'sair':
+        
+        if modo == '3':  # Sair
             print("Encerrando conexão.")
             break
 
+        message = input("Digite a mensagem para enviar: ")
+        
         if modo == '1':  # Criptografar e enviar
             encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
             print(f"Mensagem cifrada enviada: {encrypted_message}")
