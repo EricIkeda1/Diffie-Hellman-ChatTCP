@@ -1,8 +1,9 @@
 # Este é um Repositório Para Diffie-Hellman-ChatTCP
 > Implementando Diffie-Hellman-ChatTCP em Python. 
 >
-> Requisitos
-Estabelecimento da Conexão TCP: A comunicação deve ocorrer via protocolo TCP.
+# Requisitos
+>
+> Estabelecimento da Conexão TCP: A comunicação deve ocorrer via protocolo TCP.
 Implementação do Algoritmo Diffie-Hellman: Cada usuário deve:
 Calcular a chave pública e trocá-la com o outro usuário.
 Gerar uma chave privada.
