@@ -12,7 +12,7 @@ def is_prime(num):
 
 def generate_random_prime():
     while True:
-        num = random.randint(2, 1000)
+        num = random.randint(0, 999)
         if is_prime(num):
             return num
 
@@ -20,7 +20,8 @@ PRIME = generate_random_prime()  # Número primo aleatório gerado
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    public_key = (5 ** private_key) % PRIME
+    base = 3  # Defina a base como 3
+    public_key = (base ** private_key) % PRIME  # Use a base para calcular a chave pública
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
@@ -57,6 +58,16 @@ def handle_client(conn, address):
         if not encrypted_message:
             break
         print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
+
+        # Descriptografa a mensagem recebida
+        decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
+        print(f"Mensagem descriptografada: {decrypted_message}")
+
+        # Criptografa a mensagem de resposta antes de enviar
+        response_message = f"Recebi sua mensagem: {decrypted_message}"  # Mensagem de resposta
+        encrypted_response = cifra_cesar(response_message, shared_key, modo='criptografar')
+        conn.send(encrypted_response.encode())
+        print(f"Mensagem criptografada enviada ao cliente: {encrypted_response}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")

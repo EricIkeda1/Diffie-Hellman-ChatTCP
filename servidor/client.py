@@ -41,7 +41,8 @@ PRIME = 353  # Definido como número primo para o exemplo
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    public_key = (5 ** private_key) % PRIME
+    base = 3  # Defina a base como 3
+    public_key = (base ** private_key) % PRIME  # Use a base para calcular a chave pública
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
