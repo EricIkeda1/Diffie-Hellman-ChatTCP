@@ -11,7 +11,7 @@ def is_prime(num):
 
 def generate_random_prime():
     while True:
-        num = random.randint(2, 1000)
+        num = random.randint(0, 999)
         if is_prime(num):
             return num
 
