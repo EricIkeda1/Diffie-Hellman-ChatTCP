@@ -99,13 +99,11 @@ def client_program():
             print(f"Mensagem cifrada enviada: {encrypted_message}")
             client_socket.send(encrypted_message.encode())
         elif modo == '2':  # Descriptografar a mensagem antes de enviar
-            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
-            print(f"Mensagem cifrada enviada (descriptografada no cliente): {message}")
-            client_socket.send(encrypted_message.encode())
-
-            # Mostrar a versão descriptografada localmente
             decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
-            print(f"Mensagem decifrada recebida: {decrypted_message}")
+            print(f"Mensagem decifrada enviada (antes de cifrar): {decrypted_message}")
+            encrypted_message = cifra_cesar(decrypted_message, shared_key, modo='criptografar')
+            print(f"Mensagem cifrada enviada: {encrypted_message}")
+            client_socket.send(encrypted_message.encode())
 
     client_socket.close()
 
