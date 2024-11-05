@@ -19,12 +19,8 @@ Cifrar e Decifrar as Mensagens: As mensagens enviadas devem ser cifradas com a c
 >
 > Deve gerar uma nova chave a cada mensagem enviada.
 >
-> Log das Operações: 
->
-> Inclua mensagens no console:
->
-> As chaves pública e privada de cada usuário.
->
-> A chave compartilhada derivada.
->
-> As mensagens cifradas e decifradas.
+>  Log das Operações: 
+> - Inclua mensagens no console:
+> - As chaves pública e privada de cada usuário.
+> - A chave compartilhada derivada.
+> -  As mensagens cifradas e decifradas.
