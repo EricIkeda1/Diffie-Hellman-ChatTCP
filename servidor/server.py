@@ -57,10 +57,6 @@ def handle_client(conn, address):
         if not encrypted_message:
             break
         print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
-        
-        # Descriptografar a mensagem recebida
-        decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-        print(f"Mensagem decifrada: {decrypted_message}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")
