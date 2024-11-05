@@ -19,7 +19,8 @@ Gerar uma chave privada.
 >Cifrar e Decifrar as Mensagens: As mensagens enviadas devem ser cifradas com a cifra de César usando o deslocamento gerado pela chave compartilhada e, ao receber, devem ser decifradas pelo receptor.
 >
 > Deve gerar uma nova chave a cada mensagem enviada.
->  Log das Operações: 
+>
+> Log das Operações: 
 > - Inclua mensagens no console:
 > - As chaves pública e privada de cada usuário.
 > - A chave compartilhada derivada.
