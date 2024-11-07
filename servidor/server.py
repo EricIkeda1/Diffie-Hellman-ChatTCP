@@ -63,8 +63,8 @@ def handle_client(conn, address):
         decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
         print(f"Mensagem descriptografada: {decrypted_message}")
 
-        # Criptografa a mensagem de resposta antes de enviar
-        response_message = f"Recebi sua mensagem: {decrypted_message}"  # Mensagem de resposta
+        # Envia uma mensagem de confirmação ao cliente (criptografada)
+        response_message = f"Mensagem recebida: {decrypted_message}"  # Mensagem de resposta
         encrypted_response = cifra_cesar(response_message, shared_key, modo='criptografar')
         conn.send(encrypted_response.encode())
         print(f"Mensagem criptografada enviada ao cliente: {encrypted_response}")
