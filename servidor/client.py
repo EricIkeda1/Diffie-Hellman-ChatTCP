@@ -28,7 +28,7 @@ def factorize(n):
     return set(factors)
 
 def is_primitive_root(q, a):
-    phi_a = a - 1  # ϕ(a) para a primo é a-1
+    phi_a = a - 1
     factors = factorize(phi_a)
 
     for factor in factors:
@@ -37,16 +37,16 @@ def is_primitive_root(q, a):
             return False
     return True
 
-PRIME = 353  # Definido como número primo para o exemplo
+PRIME = 353  # Define o número primo compartilhado
+BASE = 3     # Define a base compartilhada
 
 def generate_keys():
     private_key = random.randint(1, PRIME - 1)
-    base = 3  # Defina a base como 3
-    public_key = (base ** private_key) % PRIME  # Use a base para calcular a chave pública
+    public_key = pow(BASE, private_key, PRIME)
     return private_key, public_key
 
 def compute_shared_key(private_key, public_key_received):
-    shared_key = (public_key_received ** private_key) % PRIME
+    shared_key = pow(public_key_received, private_key, PRIME)
     return shared_key
 
 def cifra_cesar(texto, chave, modo='criptografar'):
@@ -82,31 +82,32 @@ def client_program():
         print("1. Criptografar")
         print("2. Descriptografar")
         print("3. Sair")
-        
+
         modo = input("Digite o número da opção desejada: ")
-        
+
         if modo not in ['1', '2', '3']:
             print("Opção inválida! Tente novamente.")
             continue
-        
+
         if modo == '3':  # Sair
             print("Encerrando conexão.")
             break
 
         message = input("Digite a mensagem para enviar: ")
-        
+
         if modo == '1':  # Criptografar e enviar
             encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
             print(f"Mensagem cifrada enviada: {encrypted_message}")
             client_socket.send(encrypted_message.encode())
-        elif modo == '2':  # Descriptografar a mensagem antes de enviar
-            encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
-            print(f"Mensagem cifrada enviada (descriptografada no cliente): {message}")
-            client_socket.send(encrypted_message.encode())
 
-            # Mostrar a versão descriptografada localmente
-            decrypted_message = cifra_cesar(message, shared_key, modo='decifrar')
-            print(f"Mensagem decifrada recebida: {decrypted_message}")
+        elif modo == '2':  # Enviar e receber mensagem descriptografada
+            print(f"Mensagem cifrada enviada: {message}")
+            client_socket.send(message.encode())
+
+            # Recebe a resposta criptografada do servidor e a descriptografa localmente
+            encrypted_response = client_socket.recv(1024).decode()
+            decrypted_response = cifra_cesar(encrypted_response, shared_key, modo='decifrar')
+            print(f"Mensagem decifrada recebida: {decrypted_response}")
 
     client_socket.close()
 
