@@ -74,8 +74,9 @@ def client_program():
     server_public_key = int(client_socket.recv(1024).decode())
     print(f"Cliente - Chave Pública Recebida do Servidor: {server_public_key}")
 
+    # A chave compartilhada é gerada inicialmente
     shared_key = compute_shared_key(private_key, server_public_key)
-    print(f"Cliente - Chave Compartilhada: {shared_key}")
+    print(f"Cliente - Chave Compartilhada Inicial: {shared_key}")
 
     while True:
         print("\nEscolha uma opção:")
@@ -96,6 +97,13 @@ def client_program():
         message = input("Digite a mensagem para enviar: ")
 
         if modo == '1':  # Criptografar e enviar
+            # Regenera a chave compartilhada e imprime a troca de chave
+            private_key, public_key = generate_keys()  # Nova chave privada e pública
+            shared_key = compute_shared_key(private_key, server_public_key)  # Nova chave compartilhada
+            print(f"Nova chave privada gerada: {private_key}")
+            print(f"Nova chave pública gerada: {public_key}")
+            print(f"Nova chave compartilhada gerada: {shared_key}")
+
             encrypted_message = cifra_cesar(message, shared_key, modo='criptografar')
             print(f"Mensagem cifrada enviada: {encrypted_message}")
             client_socket.send(encrypted_message.encode())

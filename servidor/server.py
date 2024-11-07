@@ -45,31 +45,45 @@ def cifra_cesar(texto, chave, modo='criptografar'):
 def handle_client(conn, address):
     print(f"Conectado a {address}")
 
+    # Gera a chave privada e pública do servidor
     private_key, public_key = generate_keys()
     print(f"Servidor - Chave Pública: {public_key}")  # Exibe a chave pública do servidor
 
+    # Envia a chave pública para o cliente
     conn.send(str(public_key).encode())
-    client_public_key = int(conn.recv(1024).decode())
-    
-    shared_key = compute_shared_key(private_key, client_public_key)
 
+    # Recebe a chave pública do cliente
+    client_public_key = int(conn.recv(1024).decode())
+
+    # Gera a chave compartilhada inicial
+    shared_key = compute_shared_key(private_key, client_public_key)
+    
     while True:
         encrypted_message = conn.recv(1024).decode()
         if not encrypted_message:
             break
 
-        # Exibe a mensagem criptografada recebida do cliente
-        print(f"Mensagem criptografada recebida de {address}: {encrypted_message}")
+        print(f"Mensagem recebida de {address}: {encrypted_message}")
 
-        # Descriptografa a mensagem recebida
-        decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-        print(f"Mensagem descriptografada: {decrypted_message}")
+        # Verifica se o cliente enviou "1" para criptografar
+        if encrypted_message == '1':  # Quando o cliente enviar "1", o servidor gera nova chave
+            # Regenera a chave compartilhada e imprime a troca de chave
+            private_key, public_key = generate_keys()  # Nova chave privada e pública
+            shared_key = compute_shared_key(private_key, client_public_key)  # Nova chave compartilhada
+            print(f"Nova chave pública gerada: {public_key}")
 
-        # Envia uma mensagem de confirmação ao cliente (criptografada)
-        response_message = f"Mensagem recebida: {decrypted_message}"  # Mensagem de resposta
-        encrypted_response = cifra_cesar(response_message, shared_key, modo='criptografar')
-        conn.send(encrypted_response.encode())
-        print(f"Mensagem criptografada enviada ao cliente: {encrypted_response}")
+            # Envia a nova chave para o cliente
+            conn.send(f"Chave trocada com sucesso. Nova chave compartilhada: {shared_key}".encode())
+
+        else:
+            # Se não for "1", o servidor assume que o cliente está enviando uma mensagem normal
+            decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
+            print(f"Mensagem descriptografada: {decrypted_message}")
+
+            # Envia de volta a mensagem criptografada ao cliente
+            encrypted_response = cifra_cesar(decrypted_message, shared_key, modo='criptografar')
+            conn.send(encrypted_response.encode())
+            print(f"Mensagem criptografada enviada ao cliente: {encrypted_response}")
 
     conn.close()
     print(f"Conexão com {address} encerrada.")
