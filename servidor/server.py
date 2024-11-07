@@ -52,7 +52,6 @@ def handle_client(conn, address):
     client_public_key = int(conn.recv(1024).decode())
     
     shared_key = compute_shared_key(private_key, client_public_key)
-    print(f"Servidor - Chave Compartilhada com {address}: {shared_key}")
 
     while True:
         encrypted_message = conn.recv(1024).decode()

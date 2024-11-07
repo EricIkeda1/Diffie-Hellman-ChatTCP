@@ -72,7 +72,7 @@ def client_program():
 
     client_socket.send(str(public_key).encode())
     server_public_key = int(client_socket.recv(1024).decode())
-    print(f"Cliente - Chave Pública do Servidor: {server_public_key}")
+    print(f"Cliente - Chave Pública Recebida do Servidor: {server_public_key}")
 
     shared_key = compute_shared_key(private_key, server_public_key)
     print(f"Cliente - Chave Compartilhada: {shared_key}")
