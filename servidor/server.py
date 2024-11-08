@@ -49,7 +49,7 @@ class SecureServer:
         # Geração da chave compartilhada utilizando a chave pública do cliente
         private_key = random.randint(1, prime - 1)
         shared_key = (client_public_key ** private_key) % prime
-        print(f"Chave compartilhada gerada pelo servidor: {shared_key}")
+        print(f"Chave compartilhada gerada pelo servidor: (*Servidor não deve Mostrar Chave Compartilhado!*)")
         return shared_key
 
     def encrypt(self, message, shared_key):
