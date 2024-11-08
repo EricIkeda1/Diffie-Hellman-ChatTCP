@@ -82,7 +82,7 @@ class Client:
 
                     if 'encryption_type' in data:
                         print("Chat-tcp | DiffieHellman")
-                        self.server_public_key = data['public_key']  # Recebe a chave pública do servidor
+                        self.server_public_key = data['public_key'] 
                         continue
 
                     if 'content' in data:
