@@ -9,7 +9,6 @@ class SecureServer:
         self.server_socket.bind((host, port))
         self.server_socket.listen(2)
         self.active_clients = []
-        # Parâmetros para Diffie-Hellman
         self.prime = self.generate_random_prime()
         self.base = random.randint(2, self.prime - 1)
         self.private_key = random.randint(1, self.prime - 1)
@@ -41,7 +40,6 @@ class SecureServer:
         return result
 
     def handle_client(self, client_socket, client_address):
-        # Envia os parâmetros públicos do servidor (chave pública)
         initial_message = {
             "encryption_type": "DiffieHellman",
             "public_key": self.public_key,
@@ -59,15 +57,12 @@ class SecureServer:
                 print(f"\nServidor recebeu mensagem cifrada de {client_address}: {message_data['content']}")
                 print(f"Parâmetros públicos recebidos Base: {message_data['base']}, Primo: {message_data['prime']}")
 
-                # Gerar a chave compartilhada usando a chave pública do cliente
                 shared_key = self.generate_shared_key(message_data['public_key'], message_data['prime'], message_data['base'])
                 message_data['shared_key'] = str(shared_key)
 
-                # Criptografar a mensagem com a chave compartilhada
                 encrypted_msg = self.encrypt(message_data['content'], shared_key)
                 message_data['content'] = encrypted_msg
 
-                # Enviar a mensagem cifrada de volta para o cliente
                 self.broadcast_message(json.dumps(message_data), client_socket)
 
             except Exception as e:
@@ -79,15 +74,12 @@ class SecureServer:
         print(f"Cliente {client_address} foi desconectado.")
 
     def generate_shared_key(self, client_public_key, prime, base):
-        # O servidor gera uma chave privada
         private_key = random.randint(1, prime - 1)
-        # O servidor gera a chave compartilhada usando a chave pública do cliente
         shared_key = (client_public_key ** private_key) % prime
         print(f"Chave compartilhada gerada pelo servidor: *Servidor não deve mostrar a chave Compartilhada*")
         return shared_key
 
     def encrypt(self, message, shared_key):
-        # Criptografa a mensagem com a cifra de César, usando a chave compartilhada
         return self.cifra_cesar(message, shared_key % 26)
 
     def cifra_cesar(self, texto, chave):
