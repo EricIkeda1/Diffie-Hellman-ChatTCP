@@ -12,7 +12,7 @@ class SecureServer:
         self.prime = self.generate_random_prime()
         self.base = random.randint(2, self.prime - 1)
         self.private_key = random.randint(1, self.prime - 1)
-        self.public_key = self.mod_exp(self.base, self.private_key, self.prime)
+        self.public_key = self.power_mod(self.base, self.private_key, self.prime)
         print(f"Servidor iniciado em {host}:{port}")
 
     def generate_random_prime(self, min_val=0, max_val=999):
@@ -29,7 +29,7 @@ class SecureServer:
             if is_prime(num):
                 return num
 
-    def mod_exp(self, base, exp, mod):
+    def power_mod(self, base, exp, mod):
         result = 1
         base = base % mod
         while exp > 0:
@@ -74,7 +74,7 @@ class SecureServer:
         print(f"Cliente {client_address} foi desconectado.")
 
     def generate_shared_key(self, client_public_key, prime, base):
-        shared_key = (client_public_key ** self.private_key) % prime
+        shared_key = self.power_mod(client_public_key, self.private_key, prime)
         print("Chave compartilhada gerada pelo servidor: *Servidor não deve mostrar a chave Compartilhada*")
         return shared_key
 

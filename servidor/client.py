@@ -11,7 +11,7 @@ class DiffieHellman:
         self.prime = self.generate_random_prime()
         self.base = random.randint(2, self.prime - 1)
         self.private_key = random.randint(1, self.prime - 1)
-        self.public_key = self.mod_exp(self.base, self.private_key, self.prime)
+        self.public_key = self.power_mod(self.base, self.private_key, self.prime)
         self.shared_key = None
 
     def generate_random_prime(self, min_val=0, max_val=999):
@@ -28,7 +28,7 @@ class DiffieHellman:
             if is_prime(num):
                 return num
 
-    def mod_exp(self, base, exp, mod):
+    def power_mod(self, base, exp, mod):
         result = 1
         base = base % mod
         while exp > 0:
@@ -39,7 +39,7 @@ class DiffieHellman:
         return result
 
     def generate_shared_key(self, other_public_key):
-        self.shared_key = self.mod_exp(other_public_key, self.private_key, self.prime)
+        self.shared_key = self.power_mod(other_public_key, self.private_key, self.prime)
         return self.shared_key
 
     def encrypt(self, message):
@@ -81,7 +81,7 @@ class Client:
                     data = json.loads(message)
 
                     if 'encryption_type' in data:
-                        print("Chat-tcp | DiffieHellman")
+                        print("Bem-vindo ao Chat-TCP | DiffieHellman digite algo:")
                         self.server_public_key = data['public_key'] 
                         continue
 
