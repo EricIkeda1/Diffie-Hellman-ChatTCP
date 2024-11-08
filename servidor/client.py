@@ -8,13 +8,13 @@ class DiffieHellman:
         self.generate_new_keys()
 
     def generate_new_keys(self):
-        self.prime = self.generate_random_prime()  # Atualizado para generate_random_prime
+        self.prime = self.generate_random_prime()
         self.base = random.randint(2, self.prime - 1)
         self.private_key = random.randint(1, self.prime - 1)
         self.public_key = self.mod_exp(self.base, self.private_key, self.prime)
         self.shared_key = None
 
-    def generate_random_prime(self, min_val=0, max_val=999):  # Nome alterado para generate_random_prime
+    def generate_random_prime(self, min_val=0, max_val=999):
         def is_prime(n):
             if n < 2:
                 return False
@@ -39,12 +39,14 @@ class DiffieHellman:
         return result
 
     def generate_shared_key(self, other_public_key):
+        # Calcula a chave compartilhada usando a chave pública do outro participante
         self.shared_key = self.mod_exp(other_public_key, self.private_key, self.prime)
         return self.shared_key
 
     def encrypt(self, message):
         if not self.shared_key:
-            self.generate_shared_key(self.public_key)
+            print("Chave compartilhada não gerada")
+            return message  # Caso a chave não tenha sido gerada
         return self.cifra_cesar(message, self.shared_key % 26)
 
     def decrypt(self, message, shared_key, prime):
@@ -80,7 +82,7 @@ class Client:
                     data = json.loads(message)
 
                     if 'encryption_type' in data:
-                        print("Conectado ao servidor com criptografia Diffie-Hellman")
+                        print("Chat-tcp | DiffieHellman")
                         continue
 
                     if 'content' in data:
@@ -110,29 +112,25 @@ class Client:
     def send_message(self, message):
         self.diffie_hellman.generate_new_keys()
 
-        encrypted = self.diffie_hellman.encrypt(message)
-
+        # Envia a chave pública para o servidor para que o servidor possa calcular a chave compartilhada
         data = {
-            'content': encrypted,
+            'content': message,  # A mensagem original é enviada primeiro
             'base': self.diffie_hellman.base,
             'prime': self.diffie_hellman.prime,
-            'public_key': self.diffie_hellman.public_key,
-            'shared_key': str(self.diffie_hellman.shared_key)
+            'public_key': self.diffie_hellman.public_key
         }
 
         self.socket.send(json.dumps(data).encode())
+
         print("\n" + "="*50)
         print("Mensagem enviada:")
         print("="*50)
         print(f"\nMensagem original: {message}")
-        print(f"Mensagem cifrada: {encrypted}")
         print(f"Base: {self.diffie_hellman.base}")
         print(f"Primo: {self.diffie_hellman.prime}")
         print(f"Chave privada: {self.diffie_hellman.private_key}")
         print(f"Chave pública: {self.diffie_hellman.public_key}")
-        print(f"Chave compartilhada: {self.diffie_hellman.shared_key}")
         print("="*50 + "\n")
-
 
     def start(self):
         receive_thread = threading.Thread(target=self.receive_messages)
