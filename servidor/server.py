@@ -12,9 +12,7 @@ class SecureServer:
         print(f"Servidor iniciado em {host}:{port}")
 
     def handle_client(self, client_socket, client_address):
-        initial_message = {
-            "encryption_type": "DiffieHellman"
-        }
+        initial_message = {"encryption_type": "DiffieHellman"}
         client_socket.send(json.dumps(initial_message).encode())
 
         while True:
@@ -22,18 +20,13 @@ class SecureServer:
                 incoming_data = client_socket.recv(1024).decode()
                 if not incoming_data:
                     break
-
                 message_data = json.loads(incoming_data)
                 print(f"\nServidor recebeu mensagem cifrada de {client_address}: {message_data['content']}")
                 print(f"Parâmetros públicos recebidos Base: {message_data['base']}, Primo: {message_data['prime']}")
 
-                # Geração da chave compartilhada usando a chave pública do cliente
                 shared_key = self.generate_shared_key(message_data['public_key'], message_data['prime'], message_data['base'])
-                message_data['shared_key'] = str(shared_key)  # Envia a chave compartilhada para o cliente
-
-                # Criptografar a mensagem
+                message_data['shared_key'] = str(shared_key)
                 encrypted_msg = self.encrypt(message_data['content'], shared_key)
-
                 message_data['content'] = encrypted_msg
                 self.broadcast_message(json.dumps(message_data), client_socket)
 
@@ -46,10 +39,9 @@ class SecureServer:
         print(f"Cliente {client_address} foi desconectado.")
 
     def generate_shared_key(self, client_public_key, prime, base):
-        # Geração da chave compartilhada utilizando a chave pública do cliente
         private_key = random.randint(1, prime - 1)
         shared_key = (client_public_key ** private_key) % prime
-        print(f"Chave compartilhada gerada pelo servidor: (*Servidor não deve Mostrar Chave Compartilhado!*)")
+        print(f"Chave compartilhada gerada pelo servidor: *Servidor não deve mostrar a chave Compartilhada*")
         return shared_key
 
     def encrypt(self, message, shared_key):

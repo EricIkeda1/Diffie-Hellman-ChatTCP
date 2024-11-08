@@ -39,14 +39,13 @@ class DiffieHellman:
         return result
 
     def generate_shared_key(self, other_public_key):
-        # Calcula a chave compartilhada usando a chave pública do outro participante
         self.shared_key = self.mod_exp(other_public_key, self.private_key, self.prime)
         return self.shared_key
 
     def encrypt(self, message):
         if not self.shared_key:
             print("Chave compartilhada não gerada")
-            return message  # Caso a chave não tenha sido gerada
+            return message
         return self.cifra_cesar(message, self.shared_key % 26)
 
     def decrypt(self, message, shared_key, prime):
@@ -89,18 +88,13 @@ class Client:
                         encrypted_msg = data['content']
                         shared_key = int(data['shared_key'])
                         prime = int(data['prime'])
-
-                        decrypted_msg = self.diffie_hellman.decrypt(
-                            encrypted_msg,
-                            shared_key,
-                            prime
-                        )
+                        decrypted_msg = self.diffie_hellman.decrypt(encrypted_msg, shared_key, prime)
 
                         print("\n" + "="*50)
                         print("Mensagem recebida:")
                         print("="*50)
+                        print(f"\nMensagem cifrada: {encrypted_msg}")
                         print(f"Mensagem decifrada: {decrypted_msg}")
-                        print(f"Mensagem cifrada: {encrypted_msg}")
                         print(f"Base: {data['base']}")
                         print(f"Primo: {data['prime']}")
                         print(f"Chave compartilhada: {shared_key}")
@@ -111,19 +105,17 @@ class Client:
 
     def send_message(self, message):
         self.diffie_hellman.generate_new_keys()
-        
-        # Gera uma chave compartilhada temporária para este envio (baseado em um valor fictício)
-        public_key_server = 7  # Substitua pelo valor real recebido do servidor
-        self.diffie_hellman.generate_shared_key(public_key_server)
 
-        encrypted_message = self.diffie_hellman.encrypt(message)
+        other_public_key_from_server = 123456789
 
-        # Envia a mensagem cifrada e as informações da chave para o servidor
+        shared_key = self.diffie_hellman.generate_shared_key(other_public_key_from_server)
+
         data = {
-            'content': encrypted_message,  # A mensagem agora é enviada criptografada
+            'content': message,
             'base': self.diffie_hellman.base,
             'prime': self.diffie_hellman.prime,
-            'public_key': self.diffie_hellman.public_key
+            'public_key': self.diffie_hellman.public_key,
+            'shared_key': shared_key
         }
 
         self.socket.send(json.dumps(data).encode())
@@ -132,11 +124,11 @@ class Client:
         print("Mensagem enviada:")
         print("="*50)
         print(f"\nMensagem original: {message}")
-        print(f"Mensagem criptografada: {encrypted_message}")
         print(f"Base: {self.diffie_hellman.base}")
         print(f"Primo: {self.diffie_hellman.prime}")
         print(f"Chave privada: {self.diffie_hellman.private_key}")
         print(f"Chave pública: {self.diffie_hellman.public_key}")
+        print(f"Chave compartilhada: {shared_key}")
         print("="*50 + "\n")
 
     def start(self):
