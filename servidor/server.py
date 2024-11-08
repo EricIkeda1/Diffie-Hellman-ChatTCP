@@ -1,103 +1,81 @@
 import socket
-import random
 import threading
+import json
 
-def is_prime(num):
-    if num < 2:
-        return False
-    for i in range(2, int(num**0.5) + 1):
-        if num % i == 0:
-            return False
-    return True
+class SecureServer:
+    def __init__(self, host='localhost', port=1235):
+        # Criação do socket e configuração inicial
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(2)
+        self.active_clients = []  # Lista de clientes conectados
+        print(f"Servidor iniciado em {host}:{port}")
 
-def generate_random_prime():
-    while True:
-        num = random.randint(0, 999)
-        if is_prime(num):
-            return num
+    def handle_client(self, client_socket, client_address):
+        # Envia mensagem inicial de configuração para o cliente
+        initial_message = {
+            "encryption_type": "DiffieHellman"
+        }
+        client_socket.send(json.dumps(initial_message).encode())
 
-PRIME = generate_random_prime()  # Número primo aleatório gerado
+        # Loop para receber e retransmitir mensagens
+        while True:
+            try:
+                incoming_data = client_socket.recv(1024).decode()
+                if not incoming_data:
+                    break
+                
+                # Carrega os dados recebidos e imprime informações para o administrador do servidor
+                message_data = json.loads(incoming_data)
+                print(f"\nServidor recebeu mensagem cifrada de {client_address}: {message_data['content']}")
+                print(f"Parâmetros públicos recebidos Base: {message_data['base']}, Primo: {message_data['prime']}")
 
-def generate_keys():
-    private_key = random.randint(1, PRIME - 1)
-    base = 3  # Defina a base como 3
-    public_key = (base ** private_key) % PRIME  # Use a base para calcular a chave pública
-    return private_key, public_key
+                # Aqui, o servidor gera sua chave compartilhada com a chave pública do cliente
+                shared_key = self.generate_shared_key(message_data['public_key'], message_data['prime'], message_data['base'])
+                message_data['shared_key'] = str(shared_key)  # Envia a chave compartilhada para o cliente
 
-def compute_shared_key(private_key, public_key_received):
-    shared_key = (public_key_received ** private_key) % PRIME
-    return shared_key
+                # Envia a mensagem de volta ao cliente
+                self.broadcast_message(json.dumps(message_data), client_socket)
+            except Exception as e:
+                print(f"Erro ao processar mensagem de {client_address}: {e}")
+                break
 
-def cifra_cesar(texto, chave, modo='criptografar'):
-    resultado = ""
-    for char in texto:
-        if char.isalpha():
-            deslocamento = chave
-            base = ord('A') if char.isupper() else ord('a')
-            if modo == 'criptografar':
-                resultado += chr((ord(char) - base + deslocamento) % 26 + base)
-            else:
-                resultado += chr((ord(char) - base - deslocamento) % 26 + base)
-        else:
-            resultado += char
-    return resultado
+        # Remove o cliente da lista e encerra a conexão
+        self.remove_client(client_socket)
+        client_socket.close()
+        print(f"Cliente {client_address} foi desconectado.")
 
-def handle_client(conn, address):
-    print(f"Conectado a {address}")
+    def generate_shared_key(self, client_public_key, prime, base):
+        # Geração da chave compartilhada utilizando a chave pública do cliente
+        return (client_public_key ** 1) % prime  # Substitua 1 pela chave privada do servidor
 
-    # Gera a chave privada e pública do servidor
-    private_key, public_key = generate_keys()
-    print(f"Servidor - Chave Pública: {public_key}")  # Exibe a chave pública do servidor
+    def broadcast_message(self, message, sender_socket):
+        # Envia a mensagem para todos os clientes, exceto o remetente
+        for client in self.active_clients:
+            if client != sender_socket:
+                try:
+                    client.send(message.encode())
+                except Exception as e:
+                    print(f"Erro ao enviar mensagem para um cliente: {e}")
+                    self.remove_client(client)
 
-    # Envia a chave pública para o cliente
-    conn.send(str(public_key).encode())
+    def remove_client(self, client_socket):
+        # Remove um cliente da lista de clientes conectados
+        if client_socket in self.active_clients:
+            self.active_clients.remove(client_socket)
+            print("Cliente removido da lista de conexões ativas.")
 
-    # Recebe a chave pública do cliente
-    client_public_key = int(conn.recv(1024).decode())
-
-    # Gera a chave compartilhada inicial
-    shared_key = compute_shared_key(private_key, client_public_key)
-    
-    while True:
-        encrypted_message = conn.recv(1024).decode()
-        if not encrypted_message:
-            break
-
-        print(f"Mensagem recebida de {address}: {encrypted_message}")
-
-        # Verifica se o cliente enviou "1" para criptografar
-        if encrypted_message == '1':  # Quando o cliente enviar "1", o servidor gera nova chave
-            # Regenera a chave compartilhada e imprime a troca de chave
-            private_key, public_key = generate_keys()  # Nova chave privada e pública
-            shared_key = compute_shared_key(private_key, client_public_key)  # Nova chave compartilhada
-            print(f"Nova chave pública gerada: {public_key}")
-
-            # Envia a nova chave para o cliente
-            conn.send(f"Chave trocada com sucesso. Nova chave compartilhada: {shared_key}".encode())
-
-        else:
-            # Se não for "1", o servidor assume que o cliente está enviando uma mensagem normal
-            decrypted_message = cifra_cesar(encrypted_message, shared_key, modo='decifrar')
-            print(f"Mensagem descriptografada: {decrypted_message}")
-
-            # Envia de volta a mensagem criptografada ao cliente
-            encrypted_response = cifra_cesar(decrypted_message, shared_key, modo='criptografar')
-            conn.send(encrypted_response.encode())
-            print(f"Mensagem criptografada enviada ao cliente: {encrypted_response}")
-
-    conn.close()
-    print(f"Conexão com {address} encerrada.")
-
-def server_program():
-    server_socket = socket.socket()
-    server_socket.bind(('localhost', 12345))
-    server_socket.listen(2)  # Permite até 2 conexões de clientes
-    print("Servidor esperando conexão de clientes...")
-
-    while True:
-        conn, address = server_socket.accept()
-        client_thread = threading.Thread(target=handle_client, args=(conn, address))
-        client_thread.start()
+    def start_server(self):
+        print("Aguardando conexões de clientes...")
+        while True:
+            client_socket, client_address = self.server_socket.accept()
+            self.active_clients.append(client_socket)
+            print(f"Cliente conectado: {client_address}")
+            
+            # Cria e inicia uma thread para lidar com o cliente conectado
+            client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
+            client_thread.start()
 
 if __name__ == "__main__":
-    server_program()
+    server = SecureServer()
+    server.start_server()
