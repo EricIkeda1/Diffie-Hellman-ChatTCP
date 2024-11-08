@@ -82,6 +82,7 @@ class Client:
 
                     if 'encryption_type' in data:
                         print("Chat-tcp | DiffieHellman")
+                        self.server_public_key = data['public_key']  # Recebe a chave pública do servidor
                         continue
 
                     if 'content' in data:
@@ -106,9 +107,7 @@ class Client:
     def send_message(self, message):
         self.diffie_hellman.generate_new_keys()
 
-        other_public_key_from_server = 123456789
-
-        shared_key = self.diffie_hellman.generate_shared_key(other_public_key_from_server)
+        shared_key = self.diffie_hellman.generate_shared_key(self.server_public_key)
 
         data = {
             'content': message,
