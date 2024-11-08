@@ -74,9 +74,8 @@ class SecureServer:
         print(f"Cliente {client_address} foi desconectado.")
 
     def generate_shared_key(self, client_public_key, prime, base):
-        private_key = random.randint(1, prime - 1)
-        shared_key = (client_public_key ** private_key) % prime
-        print(f"Chave compartilhada gerada pelo servidor: *Servidor não deve mostrar a chave Compartilhada*")
+        shared_key = (client_public_key ** self.private_key) % prime
+        print("Chave compartilhada gerada pelo servidor: *Servidor não deve mostrar a chave Compartilhada*")
         return shared_key
 
     def encrypt(self, message, shared_key):
