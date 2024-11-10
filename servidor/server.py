@@ -54,15 +54,19 @@ class SecureServer:
                 if not incoming_data:
                     break
                 message_data = json.loads(incoming_data)
-                print(f"\nServidor recebeu mensagem cifrada de {client_address}: {message_data['content']}")
                 print(f"Parâmetros públicos recebidos Base: {message_data['base']}, Primo: {message_data['prime']}")
 
+                # Gerar chave compartilhada com base na chave pública do cliente
                 shared_key = self.generate_shared_key(message_data['public_key'], message_data['prime'], message_data['base'])
                 message_data['shared_key'] = str(shared_key)
 
+                # Criptografar a mensagem recebida usando a chave compartilhada
                 encrypted_msg = self.encrypt(message_data['content'], shared_key)
                 message_data['content'] = encrypted_msg
 
+                print(f"Mensagem cifrada antes de enviar ao cliente:{client_address}: {message_data['content']}")
+
+                # Enviar a mensagem cifrada de volta ao cliente
                 self.broadcast_message(json.dumps(message_data), client_socket)
 
             except Exception as e:
@@ -72,6 +76,7 @@ class SecureServer:
         self.remove_client(client_socket)
         client_socket.close()
         print(f"Cliente {client_address} foi desconectado.")
+
 
     def generate_shared_key(self, client_public_key, prime, base):
         shared_key = self.power_mod(client_public_key, self.private_key, prime)
