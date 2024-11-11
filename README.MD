@@ -37,3 +37,5 @@ Este projeto implementa uma comunicação segura entre dois usuários utilizando
    ```powershell
    python client.py
    python server.py
+
+![alt text](image.png)
