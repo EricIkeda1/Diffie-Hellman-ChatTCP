@@ -32,10 +32,14 @@ Este projeto implementa uma comunicação segura entre dois usuários utilizando
 
 1. **Rodando o Servidor**
 
-   Abra o PowerShell ou terminal e execute o seguinte comando para iniciar o servidor:
+   Abra 2 PowerShell ou terminal para executar com seguinte comando para iniciar o servidor:
 
    ```powershell
    python client.py
+
+   Abra somente 1 PowerShell ou terminal e execute o seguinte comando para iniciar o servidor:
+
+   ```powershell
    python server.py
 
 ![alt text](image.png)
