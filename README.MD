@@ -1,27 +1,39 @@
 # Este é um Repositório Para Diffie-Hellman-ChatTCP
-> Implementando Diffie-Hellman-ChatTCP em Python. 
->
-# Requisitos
->
-> Estabelecimento da Conexão TCP: A comunicação deve ocorrer via protocolo TCP.
->
-> Implementação do Algoritmo Diffie-Hellman: 
->
-> Cada usuário deve:
->
-> - Calcular a chave pública e trocá-la com o outro usuário.
-Gerar uma chave privada.
->
-> - Calcular a chave compartilhada de forma que ambos cheguem ao mesmo valor.
->
-> - Configuração da Cifra de César: Com a chave compartilhada derivada, defina o valor de deslocamento para a cifra de César (use o valor da chave compartilhada como base do deslocamento).
->
-> - Cifrar e Decifrar as Mensagens: As mensagens enviadas devem ser cifradas com a cifra de César usando o deslocamento gerado pela chave compartilhada e, ao receber, devem ser decifradas pelo receptor.
->
-> Deve gerar uma nova chave a cada mensagem enviada.
->
-> Log das Operações: 
-> - Inclua mensagens no console:
-> - As chaves pública e privada de cada usuário.
-> - A chave compartilhada derivada.
-> - As mensagens cifradas e decifradas.
+> Implementação de um chat TCP com criptografia utilizando o algoritmo Diffie-Hellman e a cifra de César em Python.
+
+## Descrição
+
+Este projeto implementa uma comunicação segura entre dois usuários utilizando o algoritmo **Diffie-Hellman** para a troca de chaves públicas e derivação de uma chave compartilhada. As mensagens trocadas entre os usuários são criptografadas utilizando a **Cifra de César**, onde o valor de deslocamento é derivado da chave compartilhada.
+
+### Funcionalidades
+
+1. **Estabelecimento da Conexão TCP**:
+    - A comunicação ocorre via protocolo **TCP** entre o cliente e o servidor. O servidor fica aguardando uma conexão, e o cliente se conecta ao servidor para iniciar a troca de mensagens.
+
+2. **Implementação do Algoritmo Diffie-Hellman**:
+    - Cada usuário gera sua chave privada e pública.
+    - As chaves públicas são trocadas entre os usuários.
+    - Ambos os usuários calculam a chave compartilhada com base nas chaves públicas recebidas e suas chaves privadas.
+
+3. **Cifra de César**:
+    - Com a chave compartilhada derivada, é calculado o valor do deslocamento para a **Cifra de César** (o deslocamento será o valor da chave compartilhada).
+    - As mensagens enviadas são cifradas com a Cifra de César usando o deslocamento calculado pela chave compartilhada.
+    - Ao receber uma mensagem, o receptor a decifra utilizando a mesma chave compartilhada.
+
+4. **Geração de Nova Chave a Cada Mensagem**:
+    - A cada nova mensagem enviada, uma nova chave compartilhada é gerada, garantindo maior segurança nas trocas de mensagens.
+
+5. **Logs das Operações**:
+    - O console exibe informações sobre as chaves pública e privada de cada usuário.
+    - A chave compartilhada derivada.
+    - As mensagens cifradas e decifradas.
+
+## Como Rodar?
+
+1. **Rodando o Servidor**
+
+   Abra o PowerShell ou terminal e execute o seguinte comando para iniciar o servidor:
+
+   ```powershell
+   python client.py
+   python server.py
