@@ -30,7 +30,7 @@ Este projeto implementa uma comunicação segura entre dois usuários utilizando
 
 ## Como Rodar?
 
-### 1. **Rodando o Servidor**
+### **Rodando o Servidor**
 
 - Abra **3 PowerShell** ou terminais separados para rodar os seguintes comandos:
 
