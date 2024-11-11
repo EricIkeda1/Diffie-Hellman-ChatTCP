@@ -32,14 +32,14 @@ Este projeto implementa uma comunicação segura entre dois usuários utilizando
 
 ### 1. **Rodando o Servidor**
 
-- Abra **2 PowerShell** ou terminais separados para rodar os seguintes comandos:
+- Abra **3 PowerShell** ou terminais separados para rodar os seguintes comandos:
 
-   - **No primeiro terminal**, execute o comando abaixo para iniciar o **cliente**:
+   - **No primeiro terminal, com 2 terminais**, execute o comando abaixo para iniciar o **cliente**:
      ```powershell
      python client.py
      ```
 
-   - **No segundo terminal**, execute o comando abaixo para iniciar o **servidor**:
+   - **No segundo terminal, com 1 terminal**, execute o comando abaixo para iniciar o **servidor**:
      ```powershell
      python server.py
      ```
