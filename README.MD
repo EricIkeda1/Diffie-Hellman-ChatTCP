@@ -32,7 +32,7 @@ Este projeto implementa uma comunicação segura entre dois usuários utilizando
 
 ### **Rodando o Servidor**
 
-- Abra **3 PowerShell** ou terminais separados, mas todos precisam estar conectados entre si para garantir a comunicação. Execute os seguintes comandos nos terminais:
+- Abra **3 terminais separados** dentro do **VSCode** (ou outro editor de código). Embora os terminais sejam separados, todos precisam estar conectados entre si para garantir a comunicação. Execute os seguintes comandos nos terminais:
 
    - **No primeiro terminal, com 2 terminais**, execute o comando abaixo para iniciar o **cliente**:
      ```powershell
