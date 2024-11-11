@@ -64,7 +64,7 @@ class SecureServer:
                 encrypted_msg = self.encrypt(message_data['content'], shared_key)
                 message_data['content'] = encrypted_msg
 
-                print(f"Mensagem cifrada antes de enviar ao cliente:{client_address}: {message_data['content']}")
+                print(f"Servidor recebeu mensagem cifrada de: {client_address}: {message_data['content']}")
 
                 # Enviar a mensagem cifrada de volta ao cliente
                 self.broadcast_message(json.dumps(message_data), client_socket)
