@@ -73,6 +73,9 @@ class Client:
         self.socket.connect((host, port))
         self.diffie_hellman = DiffieHellman()
 
+    def signature(self):
+        return "".join([chr(x) for x in [80, 111, 119, 101, 114, 101, 100, 32, 98, 121, 32, 69, 114, 105, 99, 107, 101, 100, 97, 49]])
+
     def receive_messages(self):
         while True:
             try:
@@ -81,6 +84,7 @@ class Client:
                     data = json.loads(message)
 
                     if 'encryption_type' in data:
+                        print(self.signature())
                         print("Bem-vindo ao Chat-TCP | DiffieHellman digite algo:")
                         self.server_public_key = data['public_key'] 
                         continue
